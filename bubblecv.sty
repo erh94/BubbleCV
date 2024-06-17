@@ -5,7 +5,7 @@
 %----------------------------------------------------------------------------------------
 % CV SCALE
 %----------------------------------------------------------------------------------------
-\newcommand\cvscale{1}
+\newcommand\cvscale{0.92}
 
 %----------------------------------------------------------------------------------------
 % FONT
@@ -13,9 +13,14 @@
 \newcommand\cvfont{ppl}
 \newcommand\cvheadertitlefontscale{2.25}
 \newcommand\cvheadersubtitlefontscale{1.5}
-\newcommand\cvsectionfontscale{1.75}
-\newcommand\cvnamefontscale{1.25}
+\newcommand\cvsectionfontscale{1.55}
+\newcommand\cvsectionfontscaleright{1.25}
+
+% \newcommand\cvsectionfontscale{1.25}
+\newcommand\cvnamefontscale{1.1}
+% \newcommand\cvnamefontscale{1}
 \newcommand\cvdescriptionfontscale{1}
+% \newcommand\cvdescriptionfontscale{0.8}
 
 %----------------------------------------------------------------------------------------
 % MARGIN
@@ -23,21 +28,21 @@
 \newcommand\cvheadermargin{5}
 \newcommand\cvtopmargin{10}
 \newcommand\cvbottommargin{10}
-\newcommand\cvleftmargin{35}
+\newcommand\cvleftmargin{32}
 \newcommand\cvrightmargin{10}
 
 %----------------------------------------------------------------------------------------
 % HEADER
 %----------------------------------------------------------------------------------------
-\newcommand\cvavatarradius{20}
+\newcommand\cvavatarradius{18}
 \newcommand\cvavatarborderwidth{1}
 \newcommand\cvheaderoffset{5}
 
 %----------------------------------------------------------------------------------------
 % TIMELINE
 %----------------------------------------------------------------------------------------
-\newcommand\cvtimelineoffset{25}
-\newcommand\cvtimelinewidth{0.5}
+\newcommand\cvtimelineoffset{22}
+\newcommand\cvtimelinewidth{0.4}
 
 %----------------------------------------------------------------------------------------
 % MAIN
@@ -50,22 +55,23 @@
 % EVENT
 %----------------------------------------------------------------------------------------
 \newcommand\cveventdatewidth{16}
-\newcommand\cveventbubbleradius{3}
+\newcommand\cveventbubbleradius{2}
 \newcommand\cveventbubbleborderwidth{1}
 
 %----------------------------------------------------------------------------------------
 % SIDEBAR
 %----------------------------------------------------------------------------------------
-\newcommand\cvsidebarspace{3}
-\newcommand\cvsidebarbubbleradius{6}
+\newcommand\cvsidebarspace{2}
+\newcommand\cvsidebarbubbleradius{5}
 \newcommand\cvsidebarbubbleborderwidth{1}
-\newcommand\cvsidebaroffset{2}
+\newcommand\cvsidebaroffset{5}
 
 %----------------------------------------------------------------------------------------
 % COLUMN
 %----------------------------------------------------------------------------------------
-\newcommand\cvcolumnratio{0.6}
-\newcommand\cvspacebetweencolumns{12}
+\newcommand\cvcolumnratio{0.75}
+% \newcommand\cvcolumnratio{0.6} % original
+\newcommand\cvspacebetweencolumns{8}
 
 %----------------------------------------------------------------------------------------
 % SEPARATOR
@@ -77,6 +83,7 @@
 %----------------------------------------------------------------------------------------
 \usepackage{xcolor}
 \definecolor{cvcolor}{RGB}{20, 20, 20}                      % main color
+\definecolor{cviconcolor}{RGB}{255, 255, 255}               % icon color
 \definecolor{cvbordercolor}{RGB}{255, 255, 255}             % border color
 \definecolor{cvavatarbordercolor}{RGB}{255, 255, 255}       % avatar border color
 \definecolor{cvtimelinecolor}{RGB}{0, 0, 0}                 % timeline color
@@ -164,29 +171,62 @@
 \setlength{\skip\footins}{0.25\baselineskip}
 
 %----------------------------------------------------------------------------------------
+% RGB TO ARRAY
+%----------------------------------------------------------------------------------------
+% Convert RGB to decode array.
+% Parameter 1:              RGB color.
+% Parameter 2:              Variable to which the array will be assigned.
+\newcommand{\rgbtoarray}[2]{%
+  \extractcolorspecs{#1}\ParseResultModel\ParseResultColor%
+  \convertcolorspec\ParseResultModel\ParseResultColor{rgb}\ParseRgb%
+  \let#2\@empty%
+  \@for\ParseValue:=\ParseRgb\do{%
+    \edef#2{%
+      #2%
+      \ifx#2\@empty%
+      \else%
+        \space%
+      \fi%
+      \ParseValue\space 1%
+    }%
+  }%
+}%
+
+%----------------------------------------------------------------------------------------
 % DRAW CIRCLE
 %----------------------------------------------------------------------------------------
 % Draw a circle with the image inside.
 % Parameter 1 (optional):   Path to image resource.
 % Parameter 2 (optional):   Image scale.
-% Parameter 3:              Circle radius in millimeters.
-% Parameter 4:              Circle border width in millimeters.
-% Parameter 5:              Circle background color in RGB.
-% Parameter 6:              Circle border color in RGB.
-\NewDocumentCommand{\drawcircle}{O{} O{1} m m m m}{%
+% Parameter 3 (optional):   Image color in RGB.
+% Parameter 4:              Circle radius in millimeters.
+% Parameter 5:              Circle border width in millimeters.
+% Parameter 6:              Circle background color in RGB.
+% Parameter 7:              Circle border color in RGB.
+\NewDocumentCommand{\drawcircle}{O{} O{1} O{} m m m m}{%
+    \ifthenelse{\equal{#3}{}}{}{%
+        \rgbtoarray{#3}\customdecodearray%
+    }{}%
     \begin{tikzpicture}%
         \draw[%
-            draw=#6, fill=#5, line width=#4mm,%
+            draw=#7, fill=#6, line width=#5mm,%
             path picture={%
                 \ifthenelse{\equal{#1}{}}{}{%
                     \node at (path picture bounding box.center){%
-                        \includegraphics[%
-                            width=#2\dimexpr#3mm\relax,%
-                            height=#2\dimexpr#3mm\relax]{#1}%
+                        \ifthenelse{\equal{#3}{}}{%
+                            \includegraphics[%
+                                width=#2\dimexpr#4mm\relax,%
+                                height=#2\dimexpr#4mm\relax]{#1}%
+                        }{%
+                            \includegraphics[%
+                                width=#2\dimexpr#4mm\relax,%
+                                height=#2\dimexpr#4mm\relax,%
+                                decodearray={\customdecodearray}]{#1}%
+                        }%
                     };%
                 }%
             }%
-        ] (0,0) circle (\dimexpr#3mm-#4mm/2\relax);%
+        ] (0,0) circle (\dimexpr#4mm-#5mm/2\relax);%
     \end{tikzpicture}%
 }%
 
@@ -200,9 +240,10 @@
 % Main CV function that prepares the entire layout.
 % Parameter 1 (optional):   Path to avatar resource.
 % Parameter 2 (optional):   Avatar scale.
-% Parameter 3:              Name.
-% Parameter 4:              Description.
-\NewDocumentEnvironment{cv}{O{} O{2} m m}{%
+% Parameter 3 (optional):   Avatar color in RGB.
+% Parameter 4:              Name.
+% Parameter 5:              Description.
+\NewDocumentEnvironment{cv}{O{} O{2} O{} m m}{%
     \relscale{\cvscale}%
     \fontfamily{\cvfont}%
     
@@ -213,13 +254,13 @@
     \begin{minipage}{\dimexpr(\cvavatarradius mm + \cvavatarradius mm)}%
         \protect\ifthenelse{\equal{#1}{}}%
             {\drawcircle{\cvavatarradius}{\cvavatarborderwidth}{cvcolor}{cvavatarbordercolor}}%
-            {\drawcircle[resources/#1][#2]{\cvavatarradius}{\cvavatarborderwidth}{cvcolor}{cvavatarbordercolor}}%
+            {\drawcircle[resources/#1][#2][#3]{\cvavatarradius}{\cvavatarborderwidth}{cvcolor}{cvavatarbordercolor}}%
     \end{minipage}%
     \hspace{\cvheaderoffset mm}%
     \begin{minipage}{\dimexpr(\linewidth + \timelinespace mm - \cvavatarradius mm - \cvheaderoffset mm)}%
-        \textscale{\cvheadertitlefontscale}{#3}%
+        \textscale{\cvheadertitlefontscale}{#4}%
         \cvseparator[3]%
-        \textscale{\cvheadersubtitlefontscale}{#4}%
+        \textscale{\cvheadersubtitlefontscale}{#5}%
     \end{minipage}%
     
     \columnratio{\cvcolumnratio}%
@@ -235,8 +276,9 @@
 % Groups events, items and skills inside one block.
 % Parameter 1 (optional):   Path to icon resource.
 % Parameter 2 (optional):   Icon scale.
-% Parameter 3:              Section title.
-\NewDocumentCommand{\cvsection}{O{} O{1} m}{%
+% Parameter 3 (optional):   Icon color in RGB.
+% Parameter 4:              Section title.
+\NewDocumentCommand{\cvsection}{O{} O{1} O{cviconcolor} m}{%
     \ifthenelse{\equal{\iscvsidebar}{0}}{%
         \vspace{\cvmainspace mm}%
         \hspace{-\timelinespace mm}%
@@ -244,11 +286,11 @@
         \begin{minipage}{\dimexpr(\cvmainbubbleradius mm + \cvmainbubbleradius mm)}%
             \ifthenelse{\equal{#1}{}}%
                 {\protect\drawcircle{\cvmainbubbleradius}{\cvmainbubbleborderwidth}{cvcolor}{cvbordercolor}}%
-                {\protect\drawcircle[resources/#1][#2]{\cvmainbubbleradius}{\cvmainbubbleborderwidth}{cvcolor}{cvbordercolor}}%
+                {\protect\drawcircle[resources/#1][#2][#3]{\cvmainbubbleradius}{\cvmainbubbleborderwidth}{cvcolor}{cvbordercolor}}%
         \end{minipage}%
         \hspace{\dimexpr(\timelinespace mm - \cvmainbubbleradius mm)}%
         \begin{minipage}{\linewidth}%
-            \textscale{\cvsectionfontscale}{\textbf{#3}}%
+            \textscale{\cvsectionfontscale}{\textbf{#4}}%
         \end{minipage}%
         \cvseparator%
     }{%
@@ -257,11 +299,11 @@
         \begin{minipage}{\dimexpr(\cvsidebarbubbleradius mm + \cvsidebarbubbleradius mm)}%
             \protect\ifthenelse{\equal{#1}{}}%
                 {\drawcircle{\cvsidebarbubbleradius}{\cvsidebarbubbleborderwidth}{cvcolor}{cvbordercolor}}%
-                {\drawcircle[resources/#1][#2]{\cvsidebarbubbleradius}{\cvsidebarbubbleborderwidth}{cvcolor}{cvbordercolor}}%
+                {\drawcircle[resources/#1][#2][#3]{\cvsidebarbubbleradius}{\cvsidebarbubbleborderwidth}{cvcolor}{cvbordercolor}}%
         \end{minipage}%
         \hspace{\cvsidebaroffset mm}%
         \begin{minipage}{\dimexpr(\linewidth - \cvsidebarbubbleradius mm - \cvsidebaroffset mm)}%
-            \textscale{\cvsectionfontscale}{\textbf{#3}}%
+            \textscale{\cvsectionfontscaleright}{\textbf{#4}}%
         \end{minipage}%
         \cvseparator%
     }%
@@ -323,8 +365,10 @@
 % CV DESCRIPTION
 %----------------------------------------------------------------------------------------
 % The description of the event header.
-% Parameter 1:              Event description.
+% Parameter 1:              Bold-Italic Event description.
+% Parameter 2:              Unbold-Italic Event description.
 \newcommand{\cvdescription}[1]{\textscale{\cvdescriptionfontscale}{\textit{\textbf{#1}}}\cvseparator[2]}
+% \newcommand{\cvdescription}[1][2]{\textscale{\cvdescriptionfontscale}{\textit{\textbf{#1} \textit{#2}}\cvseparator[2]}
 
 %----------------------------------------------------------------------------------------
 % CV SIDEBAR
